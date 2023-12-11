@@ -1,0 +1,9 @@
+A + B => C
+
+=AB
+?C
+
+# En class tu obtiens:
+# rules = [
+#    Rule(["A", "B", "+"], ["C"], ["C"], ["A", "B"]),
+#]
