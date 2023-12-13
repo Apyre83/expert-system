@@ -1,8 +1,6 @@
 from typing import Tuple
 import re
-
-# Parsed content of the file, containing the type of each line and its content
-parsed_content = []
+from Rule import Rule
 
 # Known variables and their values
 # 0 = False, 1 = True, -1 = Undefined
@@ -10,6 +8,9 @@ known_variables = {}
 
 # Queries declared variable in files
 queries = set()
+
+# List of rules
+rules = []
 
 def parse_line(line: str) -> Tuple[str, str]:
     """
@@ -132,6 +133,8 @@ def validate_rule(rule: str) -> bool:
 
     if len(operators) != 1 or operators[0] not in ['=>', '<=>']:
         raise ValueError(f"Error: Rule must contain exactly one valid implication operator : => or <=> ({rule}).")
+    else :
+        relation = operators[0]
 
     left_side, right_side = re.split(r'[<=>]+', rule, maxsplit=1)
 
@@ -142,6 +145,7 @@ def validate_rule(rule: str) -> bool:
     right_side = to_rpn(right_side)
     if not is_valid_rpn(left_side) or not is_valid_rpn(right_side):
         raise ValueError(f"Error: Rule is not valid ({rule}).")
+    rules.append(Rule(left_side, right_side, relation))
 
     return True
 
@@ -190,13 +194,13 @@ def validate_file(parsed_content):
     elif not has_query:
         raise ValueError("Error: Missing queries.")
 
-
-def parse_file(file_path: str):
+def parse_file(file_path: str) -> bool:
     """
     Parses the content of a file and validates it.
     :param file_path: Path to the file to be parsed.
     :return: True if the file content is valid, False otherwise.
     """
+    parsed_content = []
     with open(file_path, "r") as file:
         for line in file:
             parsed_content.append(parse_line(line))
