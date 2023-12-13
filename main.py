@@ -170,21 +170,20 @@ def main():
     parse_file(file_path)
 
     # Debug :
-    print("-----------------------------------")
-    print("Parsed content:")
-    for line_type, content in parsed_content:
-        # si line_type n'est pas vide
-        if (line_type != "empty"):
-            print(f"{line_type}: {content}")
-    print("-----------------------------------")
-    print("Known variables:")
-    for key, value in known_variables.items():
-        print(f"{key}: {value}")
-    print("-----------------------------------")
-    print("Queries:")
-    for query in queries:
-        print(query)
-    print("-----------------------------------")
+    # print("-----------------------------------")
+    # print("Parsed content:")
+    # for line_type, content in parsed_content:
+    #     if (line_type != "empty"):
+    #         print(f"{line_type}: {content}")
+    # print("-----------------------------------")
+    # print("Known variables:")
+    # for key, value in known_variables.items():
+    #     print(f"{key}: {value}")
+    # print("-----------------------------------")
+    # print("Queries:")
+    # for query in queries:
+    #     print(query)
+    # print("-----------------------------------")
 
 if __name__ == "__main__":
     main()
