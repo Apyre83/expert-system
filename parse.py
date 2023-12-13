@@ -1,6 +1,6 @@
 from typing import Tuple
 import re
-from Rule import Rule
+import Rule
 
 # Known variables and their values
 # 0 = False, 1 = True, -1 = Undefined
@@ -145,7 +145,7 @@ def validate_rule(rule: str) -> bool:
     right_side = to_rpn(right_side)
     if not is_valid_rpn(left_side) or not is_valid_rpn(right_side):
         raise ValueError(f"Error: Rule is not valid ({rule}).")
-    rules.append(Rule(left_side, right_side, relation))
+    rules.append(Rule.Rule(left_side, right_side, relation))
 
     return True
 

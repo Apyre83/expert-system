@@ -2,7 +2,27 @@ from typing import List, Dict, Tuple
 import sys
 from parse import check_file, parse_file
 from parse import queries, known_variables, rules
-from Rule import Rule
+import Rule
+
+
+def solve(query: str) -> None:
+    """
+    Solves the query and prints the result.
+    """
+
+    # Check if query is already known
+    if query in known_variables and known_variables[query] == True:
+        print(f"{query} = True")
+        return
+
+    for rule in rules:
+        if query in rule.output_variables:
+            val = rule.solve()
+            if (val != Rule.Rule.UNDEFINED):
+                print(f"{query} = {known_variables[query]}")
+                return
+
+    print(f"Could not solve {query} with {known_variables}")
 
 def main():
     """
@@ -31,6 +51,11 @@ def main():
     for key, value in known_variables.items():
         print(f"{key}: {value}")
     print("-----------------------------------")
+
+
+    # Solve queries
+    for query in queries:
+        solve(query)
 
 if __name__ == "__main__":
     main()
