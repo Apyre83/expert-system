@@ -1,0 +1,6 @@
+(((C+I))) => E # C implies E
+
+
+=ABG
+
+?GVX

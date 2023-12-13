@@ -1,0 +1,6 @@
+C | !G => H # C or not G implies H
+
+
+=ABG
+
+?GVX

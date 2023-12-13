@@ -1,0 +1,6 @@
+V ^ W => X # V xor W implies X
+
+
+=ABG
+
+?GVX

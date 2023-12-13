@@ -1,0 +1,6 @@
+C | D => X | V # C or D implies X or V
+
+
+=ABG
+
+?GVX
