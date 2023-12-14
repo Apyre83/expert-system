@@ -149,6 +149,18 @@ def validate_rule(rule: str) -> bool:
 
     return True
 
+def check_facts_in_rules(parsed_content):
+    """
+    Checks if all facts are present in the rules.
+    Print warning message if a fact is not present in any rule.
+    """
+    # doit parcourir toutes les rules et verififer si les facts sont dedans
+    for line_type, content in parsed_content:
+        if line_type == "fact":
+            for fact in content:
+                if fact not in known_variables:
+                    print(f"Warning: Fact {fact} is not present in any rule.")
+
 def validate_file(parsed_content):
     """
     Validates the contents of a parsed file, including rules, facts, and queries.
@@ -156,6 +168,8 @@ def validate_file(parsed_content):
     :raises ValueError: If any part of the file content is invalid.
     """
     has_rule, has_fact, has_query = False, False, False
+
+    check_facts_in_rules(parsed_content)
 
     for line_type, content in parsed_content:
         if line_type == "unknown":
