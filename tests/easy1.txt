@@ -1,9 +1,6 @@
 A + B => C
+D | E => F
+C ^ F => G
 
-=AB
-?C
-
-# En class tu obtiens:
-# rules = [
-#    Rule(["A", "B", "+"], ["C"], ["C"], ["A", "B"]),
-#]
+=ADC
+?G

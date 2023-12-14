@@ -115,7 +115,7 @@ def fill_known_undefined_variables(parsed_content):
         if line_type == "rule":
             for char in content:
                 if char.isupper() and char not in known_variables:
-                    known_variables[char] = -1
+                    known_variables[char] = False
 
 def validate_rule(rule: str) -> bool:
     """
@@ -151,15 +151,20 @@ def validate_rule(rule: str) -> bool:
 
 def check_facts_in_rules(parsed_content):
     """
-    Checks if all facts are present in the rules.
-    Print warning message if a fact is not present in any rule.
+    Checks if all facts are present in at least one rule.
+    :param parsed_content: Parsed content containing types and contents including rules.
     """
-    # doit parcourir toutes les rules et verififer si les facts sont dedans
+    facts = set()
+    rules = []
     for line_type, content in parsed_content:
         if line_type == "fact":
-            for fact in content:
-                if fact not in known_variables:
-                    print(f"Warning: Fact {fact} is not present in any rule.")
+            facts.update(content)
+        elif line_type == "rule":
+            rules.append(content)
+    for fact in facts:
+        if not any(fact in rule for rule in rules):
+            print(f"Warning: Fact '{fact}' is not present in any rule.")
+
 
 def validate_file(parsed_content):
     """
