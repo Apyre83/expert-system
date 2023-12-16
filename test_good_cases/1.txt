@@ -1,4 +1,4 @@
-C => E + B ^ B # C implies E
+C => !E + !B + !C # C implies E
 
 
 =ABG

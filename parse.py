@@ -119,6 +119,20 @@ def fill_known_undefined_variables(parsed_content):
                 if char.isupper() and char not in known_variables:
                     known_variables[char] = Rule.Variable(False, False)
 
+def divide_rule(left_side: str, right_side: str, relation: str) -> list:
+    """
+    Divides a rule with a '+' operator into multiple rules, handling negations.
+    :param left_side: The left side of the rule.
+    :param right_side: The right side of the rule.
+    :param relation: The relation of the rule.
+    :return: A list of rules.
+    """
+    divided_rules = []
+    variables = re.findall(r'(!?[A-Z])', right_side)
+    for variable in variables:
+        divided_rules.append(Rule.Rule(left_side, variable, relation))
+    return divided_rules
+
 def validate_rule(rule: str) -> bool:
     """
     Validates a single rule, ensuring it adheres to the defined syntax and structure.
@@ -145,14 +159,18 @@ def validate_rule(rule: str) -> bool:
 
     left_side = to_rpn(left_side)
     right_side = to_rpn(right_side)
-    # interdit les operateurs dans right side (+ ^ |)
     if re.search(r'[|^]', right_side):
         raise ValueError(f"Error: Right side of rule must not contain any operator ({rule}).")
 
-    rpns.append(left_side + right_side + "=>")
     if not is_valid_rpn(left_side) or not is_valid_rpn(right_side):
         raise ValueError(f"Error: Rule is not valid ({rule}).")
-    rules.append(Rule.Rule(left_side, right_side, relation))
+
+    if '+' in right_side:
+        divided_rules = divide_rule(left_side, right_side, relation)
+        for divided_rule in divided_rules:
+            rules.append(divided_rule)
+    else:
+        rules.append(Rule.Rule(left_side, right_side, relation))
 
     return True
 
@@ -171,7 +189,6 @@ def check_facts_in_rules(parsed_content):
     for fact in facts:
         if not any(fact in rule for rule in rules):
             print(f"Warning: Fact '{fact}' is not present in any rule.")
-
 
 def validate_file(parsed_content):
     """
