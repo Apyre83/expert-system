@@ -1,4 +1,4 @@
-C => E # C implies E
+C => E + B ^ B # C implies E
 
 
 =ABG

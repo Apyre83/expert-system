@@ -118,7 +118,6 @@ def fill_known_undefined_variables(parsed_content):
             for char in content:
                 if char.isupper() and char not in known_variables:
                     known_variables[char] = Rule.Variable(False, False)
-                    #known_variables[char] = False
 
 def validate_rule(rule: str) -> bool:
     """
@@ -146,6 +145,10 @@ def validate_rule(rule: str) -> bool:
 
     left_side = to_rpn(left_side)
     right_side = to_rpn(right_side)
+    # interdit les operateurs dans right side (+ ^ |)
+    if re.search(r'[|^]', right_side):
+        raise ValueError(f"Error: Right side of rule must not contain any operator ({rule}).")
+
     rpns.append(left_side + right_side + "=>")
     if not is_valid_rpn(left_side) or not is_valid_rpn(right_side):
         raise ValueError(f"Error: Rule is not valid ({rule}).")

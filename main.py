@@ -35,7 +35,7 @@ class Node:
                 self.value = global_dict[self.name].solve()
                 self.hasBeenSolved = True
                 return self.value
-        
+
         if self.name == "!":
             self.value = not self.right.solve()
             self.hasBeenSolved = True
@@ -55,14 +55,12 @@ class Node:
             self.value = self.left.solve() != self.right.solve()
             self.hasBeenSolved = True
             return self.value
-    
+
     def __str__(self):
         return f"{self.name} (.{self.value}., .{self.hasBeenSolved}.)\n"
 
     def __repr__(self):
         return str(self)
-
-
 
 def construct_tree(rpn_expression):
     tokens = list(rpn_expression)
@@ -95,17 +93,12 @@ def print_tree(node, level=0):
         print(' ' * 4 * level + f'-> {node.name} ({node.value}, {status})')
         print_tree(node.left, level + 1)
 
-
 def extract_variable_fron_RPN(rpn_expression: str) -> Tuple[str, str]:
     variable: str = rpn_expression[-3]
     rpn_expression = rpn_expression[:-3]
     return variable, rpn_expression
 
-
 global_dict: Dict[str, Node] = {}
-
-
-
 
 #rpn_expressions = ["AB+C=>", "DE|F=>", "FF^G=>"]
 #for rpn_expression in rpn_expressions:
@@ -114,12 +107,6 @@ global_dict: Dict[str, Node] = {}
 #    print("variable: ", variable)
 #    print_tree(global_dict[variable])
 #    print("-------------------------------")
-
-
-
-
-
-
 
 def main():
     """
@@ -149,11 +136,8 @@ def main():
         print(f"{key}: {value}")
     print("-----------------------------------")
 
-
     for variable in known_variables:
         global_dict[variable] = Node(variable, known_variables[variable].value)
-
-
 
     for tmp_rpn in rpns:
         variable, rpn = extract_variable_fron_RPN(tmp_rpn)
@@ -162,12 +146,11 @@ def main():
         print_tree(global_dict[variable])
         print("-------------------------------")
 
-
     for query in queries:
-        print(f"{query}: {global_dict[query].solve()}")
-
-
-
+        if query in global_dict:
+            print(f"{query}: {global_dict[query].solve()}")
+        else:
+            print(f"{query}: False")
 
 if __name__ == "__main__":
     main()
