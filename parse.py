@@ -3,7 +3,7 @@ import re
 import Rule
 
 # Known variables and their values
-# 0 = False, 1 = True, -1 = Undefined
+# 0 = False, 1 = True
 known_variables = {}
 
 # Queries declared variable in files
@@ -115,7 +115,8 @@ def fill_known_undefined_variables(parsed_content):
         if line_type == "rule":
             for char in content:
                 if char.isupper() and char not in known_variables:
-                    known_variables[char] = False
+                    known_variables[char] = Rule.Variable(False, False)
+                    #known_variables[char] = False
 
 def validate_rule(rule: str) -> bool:
     """
@@ -195,7 +196,8 @@ def validate_file(parsed_content):
             for fact in content:
                 if fact in known_variables:
                     raise ValueError(f"Error: Duplicate fact detected ({fact}).")
-                known_variables[fact] = True
+                #known_variables[fact] = True
+                known_variables[fact] = Rule.Variable(True, True) # Since its in the fact we know it has been solved
 
         if line_type == "query":
             has_query = True

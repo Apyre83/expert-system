@@ -1,6 +1,21 @@
 import parse
 from typing import List, Set
 
+
+
+class Variable:
+    value: bool = False
+    hasBeenSolved: bool = False
+
+    def __init__(self, value: bool = False, hasBeenSolved: bool = False):
+        self.value = value
+        self.hasBeenSolved = hasBeenSolved
+
+    def __str__(self):
+        return f"Value: {self.value}\t| Solved: {self.hasBeenSolved}"
+
+
+
 class Rule:
 
     operators = ["+", "|", "^", "!"]
