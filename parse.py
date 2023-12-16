@@ -12,6 +12,8 @@ queries = set()
 # List of rules
 rules = []
 
+rpns = []
+
 def parse_line(line: str) -> Tuple[str, str]:
     """
     Analyzes a line of text and categorizes it as a comment, rule, fact, or query.
@@ -144,6 +146,7 @@ def validate_rule(rule: str) -> bool:
 
     left_side = to_rpn(left_side)
     right_side = to_rpn(right_side)
+    rpns.append(left_side + right_side + "=>")
     if not is_valid_rpn(left_side) or not is_valid_rpn(right_side):
         raise ValueError(f"Error: Rule is not valid ({rule}).")
     rules.append(Rule.Rule(left_side, right_side, relation))

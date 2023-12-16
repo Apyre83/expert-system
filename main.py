@@ -3,7 +3,7 @@
 from typing import List, Dict, Tuple, Set
 import sys
 from parse import check_file, parse_file
-from parse import queries, known_variables, rules
+from parse import queries, known_variables, rules, rpns
 import Rule
 
 
@@ -24,7 +24,7 @@ class Node:
         self.type = "OPERATOR" if name in "+|^!" else "VARIABLE"
 
     def solve(self):
-        print(f"solve() with {self.name}")
+        #print(f"solve() with {self.name}")
         if self.type == "VARIABLE":
             if self.hasBeenSolved:
                 return self.value
@@ -57,7 +57,7 @@ class Node:
             return self.value
     
     def __str__(self):
-        return f"{self.name} ({self.value}, {self.hasBeenSolved})"
+        return f"{self.name} (.{self.value}., .{self.hasBeenSolved}.)\n"
 
     def __repr__(self):
         return str(self)
@@ -103,22 +103,18 @@ def extract_variable_fron_RPN(rpn_expression: str) -> Tuple[str, str]:
 
 
 global_dict: Dict[str, Node] = {}
-global_dict["A"] = Node("A", True)
-global_dict["B"] = Node("B", True)
-global_dict["D"] = Node("D", True)
 
 
-rpn_expressions = ["AB+C=>", "DE|F=>", "FC^G=>"]
-for rpn_expression in rpn_expressions:
-    variable, rpn_expression = extract_variable_fron_RPN(rpn_expression)
-    global_dict[variable] = construct_tree(rpn_expression)
-    print("variable: ", variable)
-    print_tree(global_dict[variable])
-    print("-------------------------------")
 
-print(global_dict)
-print(global_dict["G"].solve())
-print(global_dict)
+
+#rpn_expressions = ["AB+C=>", "DE|F=>", "FF^G=>"]
+#for rpn_expression in rpn_expressions:
+#    variable, rpn_expression = extract_variable_fron_RPN(rpn_expression)
+#    global_dict[variable] = construct_tree(rpn_expression)
+#    print("variable: ", variable)
+#    print_tree(global_dict[variable])
+#    print("-------------------------------")
+
 
 
 
@@ -153,15 +149,26 @@ def main():
         print(f"{key}: {value}")
     print("-----------------------------------")
 
-    for rule in rules:
-        tree_root = construct_tree(rule.left_operand_rpn, rule.output_variables[0])
-        print_tree(tree_root)
+
+    for variable in known_variables:
+        global_dict[variable] = Node(variable, known_variables[variable].value)
 
 
-    # Solve queries
-    #for query in queries:
-    #    solve(query)
 
-"""if __name__ == "__main__":
+    for tmp_rpn in rpns:
+        variable, rpn = extract_variable_fron_RPN(tmp_rpn)
+        print(f"var: {variable} rpn: {rpn}")
+        global_dict[variable] = construct_tree(rpn)
+        print_tree(global_dict[variable])
+        print("-------------------------------")
+
+
+    for query in queries:
+        print(f"{query}: {global_dict[query].solve()}")
+
+
+
+
+if __name__ == "__main__":
     main()
-    pass"""
+    pass
