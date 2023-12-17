@@ -1,4 +1,4 @@
-C | D => X | V # C or D implies X or V
+C | D => X # C or D implies X or V
 
 
 =ABG
