@@ -4,7 +4,7 @@ import Rule
 
 # Known variables and their values
 # 0 = False, 1 = True
-known_variables = {}
+global_dict = {}
 
 # Queries declared variable in files
 queries = set()
@@ -13,6 +13,35 @@ queries = set()
 rules = []
 
 rpns = []
+
+
+
+def construct_tree(rpn_expression):
+    tokens = list(rpn_expression)
+    stack = []
+
+    for token in tokens:
+        if token in global_dict:
+            stack.append(Rule.Node(token, False)) # False => global_dict[token].solve()
+            continue
+
+        if token in "+|^":
+            node = Rule.Node(token)
+            node.right = stack.pop() if stack else None
+            node.left = stack.pop() if stack else None
+        elif token == "!":
+            node = Rule.Node(token)
+            node.right = stack.pop() if stack else None
+        else:
+            node = Rule.Node(token)  # Créer un nœud avec le nom du token
+
+        global_dict[node.name] = node  # Stocker le nœud dans le dictionnaire global
+        stack.append(node)
+
+    return stack.pop()
+
+
+
 
 def parse_line(line: str) -> Tuple[str, str]:
     """
@@ -106,20 +135,23 @@ def to_rpn(expression: str) -> str:
     while stack:
         output.append(stack.pop())
 
+    print(''.join(output))
     return ''.join(output)
 
 def fill_known_undefined_variables(parsed_content):
     """
-    Fills the known_variables dictionary with undefined variables found in rules, setting their value to -1 (undefined).
+    Fills the global_dict dictionary with undefined variables found in rules, setting their value to -1 (undefined).
     :param parsed_content: Parsed content containing types and contents including rules.
     """
     for line_type, content in parsed_content:
         if line_type == "rule":
             for char in content:
-                if char.isupper() and char not in known_variables:
-                    known_variables[char] = Rule.Variable(False, False)
+                if char.isupper() and char not in global_dict:
+                    #global_dict[char] = Rule.Variable(False, False)
+                    global_dict[char] = Rule.Node(char, False)
+                    pass
 
-def divide_rule(left_side: str, right_side: str, relation: str) -> list:
+def divide_rule(left_side: str, right_side: str, relation: str) -> dict:
     """
     Divides a rule with a '+' operator into multiple rules, handling negations.
     :param left_side: The left side of the rule.
@@ -127,10 +159,11 @@ def divide_rule(left_side: str, right_side: str, relation: str) -> list:
     :param relation: The relation of the rule.
     :return: A list of rules.
     """
-    divided_rules = []
+    #divided_rules = []
+    divided_rules = {}
     variables = re.findall(r'(!?[A-Z])', right_side)
     for variable in variables:
-        divided_rules.append(Rule.Rule(left_side, variable, relation))
+        divided_rules[variable] = construct_tree(left_side)
     return divided_rules
 
 def validate_rule(rule: str) -> bool:
@@ -167,10 +200,13 @@ def validate_rule(rule: str) -> bool:
 
     if '+' in right_side:
         divided_rules = divide_rule(left_side, right_side, relation)
-        for divided_rule in divided_rules:
-            rules.append(divided_rule)
+        #for divided_rule in divided_rules:
+            #rules.append(divided_rule)
+        for key, value in divided_rules.items():
+            global_dict[key] = value
     else:
-        rules.append(Rule.Rule(left_side, right_side, relation))
+        print(f"right_side: {right_side}")
+        global_dict[right_side] = construct_tree(left_side)
 
     return True
 
@@ -217,10 +253,14 @@ def validate_file(parsed_content):
             if not re.match(r'^[A-Z]*$', content):
                 raise ValueError(f"Error: Invalid characters in facts ({content}).")
             for fact in content:
-                if fact in known_variables:
-                    raise ValueError(f"Error: Duplicate fact detected ({fact}).")
-                #known_variables[fact] = True
-                known_variables[fact] = Rule.Variable(True, True) # Since its in the fact we know it has been solved
+                if fact in global_dict:
+                    if global_dict[fact].value == False:
+                        global_dict[fact] = Rule.Node(fact, True)
+                    else:
+                        continue
+                    #print(global_dict)
+                    #raise ValueError(f"Error: Duplicate fact detected ({fact}).")
+                global_dict[fact] = Rule.Node(fact, True)
 
         if line_type == "query":
             has_query = True

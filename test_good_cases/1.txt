@@ -1,6 +1,6 @@
 C => !E + !B + !C # C implies E
 
 
-=ABG
+=ABGC
 
-?GVX
+?GVXE

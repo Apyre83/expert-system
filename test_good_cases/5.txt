@@ -1,6 +1,6 @@
-C | !G => H # C or not G implies H
+C | !G => H
 
 
 =ABG
 
-?GVX
+?GVXH
