@@ -57,7 +57,7 @@ def main():
     check_file(file_path)
     parse_file(file_path)
 
-    # # Debug :
+    # Debug :
     # print("-----------------------------------")
     # print("Rules (RPN format):")
     # for rule in rules:
@@ -68,12 +68,9 @@ def main():
     #     print(query)
     # print("-----------------------------------")
     # print("Known variables:")
-    # #for key, value in known_variables.items():
-    # #    print(f"{key}: {value}")
+    # for variable in global_dict:
+    #     print(variable)
     # print("-----------------------------------")
-
-    # #for variable in known_variables:
-    # #    global_dict[variable] = Node(variable, known_variables[variable].value)
 
     # for variable in global_dict:
     #     print(variable)
@@ -82,7 +79,7 @@ def main():
 
     # print(global_dict)
 
-    print("----------   SOLVING   ----------")
+    # print("----------   SOLVING   ----------")
 
     for query in queries:
         if query in global_dict:

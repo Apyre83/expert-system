@@ -1,5 +1,5 @@
 B + !C => A
 
-=BC # expected A if false
+=BC # expected A is false
 
 ?A
