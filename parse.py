@@ -12,10 +12,6 @@ queries = set()
 # List of rules
 rules = []
 
-rpns = []
-
-
-
 def construct_tree(rpn_expression):
     tokens = list(rpn_expression)
     stack = []
@@ -39,9 +35,6 @@ def construct_tree(rpn_expression):
         stack.append(node)
 
     return stack.pop()
-
-
-
 
 def parse_line(line: str) -> Tuple[str, str]:
     """
@@ -135,7 +128,7 @@ def to_rpn(expression: str) -> str:
     while stack:
         output.append(stack.pop())
 
-    print(''.join(output))
+    # print(''.join(output))
     return ''.join(output)
 
 def fill_known_undefined_variables(parsed_content):
@@ -205,7 +198,7 @@ def validate_rule(rule: str) -> bool:
         for key, value in divided_rules.items():
             global_dict[key] = value
     else:
-        print(f"right_side: {right_side}")
+        # print(f"right_side: {right_side}")
         global_dict[right_side] = construct_tree(left_side)
 
     return True

@@ -16,7 +16,7 @@ class Node:
         self.type = "OPERATOR" if name in "+|^!" else "VARIABLE"
 
     def solve(self):
-        # print(f"solve() with {self.name}")
+        print(f"solve() with {self.name}")
         if self.type == "VARIABLE":
             if self.hasBeenSolved:
                 return self.value
@@ -28,23 +28,27 @@ class Node:
                 self.hasBeenSolved = True
                 return self.value
 
-        if self.name in ["+", "|", "^"]:
-            left_value = self.left.solve() if self.left is not None else False
-            right_value = self.right.solve() if self.right is not None else False
+        if self.name == "!":
+            print("self.right: ", self.right)
+            self.value = not self.right.solve()
+            self.hasBeenSolved = True
+            return self.value
 
-            if self.name == "+":
-                self.value = left_value and right_value
-            elif self.name == "|":
-                self.value = left_value or right_value
-            elif self.name == "^":
-                self.value = left_value != right_value
+        if self.name == "+":
+            self.value = self.left.solve() and self.right.solve()
+            self.hasBeenSolved = True
+            return self.value
 
-        elif self.name == "!":
-            right_value = self.right.solve() if self.right is not None else False
-            self.value = not right_value
+        if self.name == "|":
+            print("self.left: ", self.left)
+            self.value = self.left.solve() or self.right.solve()
+            self.hasBeenSolved = True
+            return self.value
 
-        self.hasBeenSolved = True
-        return self.value
+        if self.name == "^":
+            self.value = self.left.solve() != self.right.solve()
+            self.hasBeenSolved = True
+            return self.value
 
     def __str__(self):
         if self.type == "VARIABLE":
