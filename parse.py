@@ -12,8 +12,31 @@ queries = set()
 # List of rules
 rules = []
 
-def construct_tree(rpn_expression):
+def pre_process_rpn(rpn_expression):
     tokens = list(rpn_expression)
+    processed_tokens = []
+    skip_next = False
+
+    for i, token in enumerate(tokens):
+        if skip_next:
+            skip_next = False
+            continue
+
+        if token == "!":
+            if i + 1 < len(tokens):
+                processed_tokens.append(tokens[i + 1])
+                processed_tokens.append(token)
+                skip_next = True
+            else:
+                raise ValueError("Expression RPN invalide: '!' à la fin de l'expression")
+        else:
+            processed_tokens.append(token)
+
+    return ''.join(processed_tokens)
+
+def construct_tree(rpn_expression):
+    pre_rpn = pre_process_rpn(rpn_expression)
+    tokens = list(pre_rpn)
     stack = []
 
     for token in tokens:
@@ -130,7 +153,7 @@ def to_rpn(expression: str) -> str:
     while stack:
         output.append(stack.pop())
 
-    # print(''.join(output))
+    #print(''.join(output))
     return ''.join(output)
 
 def fill_known_undefined_variables(parsed_content):
