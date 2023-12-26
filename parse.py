@@ -17,7 +17,8 @@ def construct_tree(rpn_expression):
     stack = []
 
     for token in tokens:
-        if token in global_dict:
+
+        if token in global_dict and token not in "+|^":
             stack.append(Rule.Node(token, False)) # False => global_dict[token].solve()
             continue
 
@@ -25,6 +26,7 @@ def construct_tree(rpn_expression):
             node = Rule.Node(token)
             node.right = stack.pop() if stack else None
             node.left = stack.pop() if stack else None
+
         elif token == "!":
             node = Rule.Node(token)
             node.right = stack.pop() if stack else None
@@ -152,7 +154,6 @@ def divide_rule(left_side: str, right_side: str, relation: str) -> dict:
     :param relation: The relation of the rule.
     :return: A list of rules.
     """
-    #divided_rules = []
     divided_rules = {}
     variables = re.findall(r'(!?[A-Z])', right_side)
     for variable in variables:
