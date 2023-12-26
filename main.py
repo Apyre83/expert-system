@@ -72,10 +72,14 @@ def main():
     #     print(variable)
     # print("-----------------------------------")
 
-    # for variable in global_dict:
-    #     print(variable)
-    #     print_tree(global_dict[variable])
-    #     print("-------------------------------")
+    #for variable in global_dict:
+    #    if variable in "!+^|":
+    #        continue
+    #    print(variable)
+    #    for rule in global_dict[variable]:
+    #        print_tree(rule)
+    #        print()
+    #    print("-------------------------------")
 
     # print(global_dict)
 
@@ -83,7 +87,12 @@ def main():
 
     for query in queries:
         if query in global_dict:
-            print(f"{query}: {global_dict[query].solve()}")
+            result = False
+            for node in global_dict[query]:
+                node_result = node.solve()
+                result = result or node_result  # Mettre à jour si un des Nodes donne True
+                if (result): break
+            print(f"{query}: {result}")
         else:
             print(f"{query}: False")
 

@@ -2,9 +2,8 @@ from typing import Tuple
 import re
 import Rule
 
-# Known variables and their values
-# 0 = False, 1 = True
-global_dict = {}
+# global_dict est désormais un dictionnaire de listes de Node
+global_dict = {}  # Key: variable, Value: List[Rule.Node]
 
 # Queries declared variable in files
 queries = set()
@@ -40,26 +39,29 @@ def construct_tree(rpn_expression):
     stack = []
 
     for token in tokens:
-
         if token in global_dict and token not in "+|^":
-            stack.append(Rule.Node(token, False)) # False => global_dict[token].solve()
+            # Si le token est déjà dans global_dict et n'est pas un opérateur, ajoutez-le au stack
+            stack.append(Rule.Node(token, False))  # False => global_dict[token].solve()
             continue
 
         if token in "+|^":
             node = Rule.Node(token)
             node.right = stack.pop() if stack else None
             node.left = stack.pop() if stack else None
-
         elif token == "!":
             node = Rule.Node(token)
             node.right = stack.pop() if stack else None
         else:
             node = Rule.Node(token)  # Créer un nœud avec le nom du token
 
-        global_dict[node.name] = node  # Stocker le nœud dans le dictionnaire global
+        # Ajouter le nœud à la liste correspondante dans global_dict
+        if node.name not in global_dict:
+            global_dict[node.name] = []  # Initialiser avec une liste vide si non existant
+        global_dict[node.name].append(node)  # Ajouter le Node à la liste
+
         stack.append(node)
 
-    return stack.pop()
+    return stack.pop() if stack else None
 
 def parse_line(line: str) -> Tuple[str, str]:
     """
@@ -110,6 +112,8 @@ def is_valid_rpn(rpn_expression: str) -> bool:
         i += 1
     return stack == 1
 
+
+
 def to_rpn(expression: str) -> str:
     """
     Converts a regular mathematical/logical expression to Reverse Polish Notation (RPN).
@@ -156,6 +160,7 @@ def to_rpn(expression: str) -> str:
     #print(''.join(output))
     return ''.join(output)
 
+
 def fill_known_undefined_variables(parsed_content):
     """
     Fills the global_dict dictionary with undefined variables found in rules, setting their value to -1 (undefined).
@@ -165,9 +170,8 @@ def fill_known_undefined_variables(parsed_content):
         if line_type == "rule":
             for char in content:
                 if char.isupper() and char not in global_dict:
-                    #global_dict[char] = Rule.Variable(False, False)
-                    global_dict[char] = Rule.Node(char, False)
-                    pass
+                    global_dict[char] = [Rule.Node(char, False)]
+
 
 def divide_rule(left_side: str, right_side: str, relation: str) -> dict:
     """
@@ -215,15 +219,17 @@ def validate_rule(rule: str) -> bool:
     if not is_valid_rpn(left_side) or not is_valid_rpn(right_side):
         raise ValueError(f"Error: Rule is not valid ({rule}).")
 
+
     if '+' in right_side:
         divided_rules = divide_rule(left_side, right_side, relation)
-        #for divided_rule in divided_rules:
-            #rules.append(divided_rule)
         for key, value in divided_rules.items():
-            global_dict[key] = value
+            if key not in global_dict:
+                global_dict[key] = []
+            global_dict[key].append(value)
     else:
-        # print(f"right_side: {right_side}")
-        global_dict[right_side] = construct_tree(left_side)
+        if right_side not in global_dict:
+            global_dict[right_side] = []
+        global_dict[right_side].append(construct_tree(left_side))
 
     return True
 
@@ -265,19 +271,16 @@ def validate_file(parsed_content):
                 print(e)
                 exit(1)
 
+
         if line_type == "fact":
             has_fact = True
             if not re.match(r'^[A-Z]*$', content):
                 raise ValueError(f"Error: Invalid characters in facts ({content}).")
             for fact in content:
-                if fact in global_dict:
-                    if global_dict[fact].value == False:
-                        global_dict[fact] = Rule.Node(fact, True)
-                    else:
-                        continue
-                    #print(global_dict)
-                    #raise ValueError(f"Error: Duplicate fact detected ({fact}).")
-                global_dict[fact] = Rule.Node(fact, True)
+                if fact not in global_dict or not any(node.value for node in global_dict[fact]):
+                    # Ajouter le fait seulement s'il n'est pas déjà présent ou s'il n'est pas résolu
+                    global_dict[fact] = [Rule.Node(fact, True)]
+
 
         if line_type == "query":
             has_query = True
@@ -294,6 +297,9 @@ def validate_file(parsed_content):
         raise ValueError("Error: Missing facts. Even if there are no facts, there must be an empty fact section, beginning with \"=\".")
     elif not has_query:
         raise ValueError("Error: Missing queries.")
+
+
+
 
 def parse_file(file_path: str) -> bool:
     """

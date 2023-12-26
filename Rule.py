@@ -14,19 +14,25 @@ class Node:
         self.left = None
         self.right = None
         self.type = "OPERATOR" if name in "+|^!" else "VARIABLE"
+        self.isBeingSolved = False
 
     def solve(self):
-        # print(f"solve() with {self.name}")
         if self.type == "VARIABLE":
             if self.hasBeenSolved:
                 return self.value
-            else:
-                if (id(self) == id(parse.global_dict[self.name])):
-                    return self.value
+            if self.isBeingSolved:
+                return False
 
-                self.value = parse.global_dict[self.name].solve()
-                self.hasBeenSolved = True
-                return self.value
+            self.isBeingSolved = True
+            result = False
+            for node in parse.global_dict[self.name]:
+                node_result = node.solve()
+                result = result or node_result
+            self.value = result
+            self.hasBeenSolved = True
+            self.isBeingSolved = False
+            return self.value
+
 
         if self.name in ["+", "|", "^"]:
             left_value = self.left.solve() if self.left is not None else False
