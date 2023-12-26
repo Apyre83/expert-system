@@ -1,0 +1,6 @@
+(F | G) + H => E
+A | B + C => E
+
+=A # expected E is true
+
+?E

@@ -1,0 +1,13 @@
+B => A
+D + E => B
+G + H => F
+I + J => G
+G => H
+L + M => K
+O + P => N
+O + P => L
+N => M
+
+?AFKP
+
+=DEIJP

@@ -1,0 +1,4 @@
+K: False
+A: True
+P: True
+F: True

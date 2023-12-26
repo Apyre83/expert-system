@@ -1,0 +1,6 @@
+(C+B+((D+E))) ^ (A) => E # C implies E
+F + F ^ A <=> (!B)
+
+=ABG
+
+?GVX

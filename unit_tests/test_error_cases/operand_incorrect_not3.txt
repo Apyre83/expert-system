@@ -1,0 +1,5 @@
+A + !! B => E # C implies E
+
+=ABG # Initial facts : A, B and G are true. All others are false.
+
+?A

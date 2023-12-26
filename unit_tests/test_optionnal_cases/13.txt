@@ -1,0 +1,6 @@
+(C + D) => E # C implies E
+
+
+=ABG
+
+?GVX

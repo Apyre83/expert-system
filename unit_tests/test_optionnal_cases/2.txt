@@ -1,0 +1,6 @@
+A + B + C => D # A and B and C implies D
+
+
+=ABG
+
+?GVX

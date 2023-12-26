@@ -1,0 +1,13 @@
+A + B => C
+D + E => F
+C | F => G
+
+=ABDE
+?G
+
+# En class tu obtiens:
+#rules = [
+#    Rule(["A", "B", "+"], ["C"], ["C"], ["A", "B"]),
+#    Rule(["D", "E", "+"], ["F"], ["F"], ["D", "E"]),
+#    Rule(["C", "F", "|"], ["G"], ["G"], ["C", "F"]),
+#]

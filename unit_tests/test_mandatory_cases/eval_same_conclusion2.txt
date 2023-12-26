@@ -1,0 +1,6 @@
+B => A
+C => A
+
+=B # expected A is true
+
+?A
