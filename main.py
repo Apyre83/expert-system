@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-from typing import List, Dict, Tuple, Set
-import sys
-from parse import check_file, parse_file
-from parse import queries, rules, global_dict
-import Rule
+from typing import Tuple
+from parse import check_file, parse_file, read_file
+from parse import queries, global_dict
+from interactive import interactive_mode
+import argparse
 
 def print_tree(node, level=0):
     """
@@ -36,26 +36,54 @@ def extract_variable_fron_RPN(rpn_expression: str) -> Tuple[str, str]:
     rpn_expression = rpn_expression[:-3]
     return variable, rpn_expression
 
-#rpn_expressions = ["AB+C=>", "DE|F=>", "FF^G=>"]
-#for rpn_expression in rpn_expressions:
-#    variable, rpn_expression = extract_variable_fron_RPN(rpn_expression)
-#    global_dict[variable] = construct_tree(rpn_expression)
-#    print("variable: ", variable)
-#    print_tree(global_dict[variable])
-#    print("-------------------------------")
-
 def main():
     """
-    Main function to run the program.
-    Checks for the correct number of arguments, validates the file, and processes it.
+    The main function to run the expert system program. It starts by parsing arguments for the input file
+    and the interactive mode. If an input file is provided, it reads and processes the file. If the interactive
+    mode is specified, it enters an interactive session where the user can manipulate the parsed content.
+    After processing the input file or the content from the interactive session, the program evaluates the
+    logical queries and prints the results.
+    The function first checks if the input file is provided. If not, it displays the help message. Then, it
+    reads and processes the input file. If interactive mode is selected, it goes into an interactive session
+    allowing the user to view, add, edit, remove, or execute parsed content. Finally, it evaluates the logical
+    queries and prints the results to the console.
+    The program requires either an input file path
+    to run properly.
     """
-    if (len(sys.argv) != 2):
-        print("Error: Invalid number of arguments.")
-        print("Usage: python3 main.py [input_file_path]")
+    parser = argparse.ArgumentParser(
+        description="This program analyzes and solves logical problems.")
+    parser.add_argument("input_file", nargs='?',
+                        help="Path to input file", default=None)
+    parser.add_argument(
+        "--interactive", help="Start in interactive mode", action="store_true")
+    args = parser.parse_args()
+    if args.input_file is None:
+        parser.print_help()
         return
-    file_path = sys.argv[1]
-    check_file(file_path)
-    parse_file(file_path)
+    check_file(args.input_file)
+    parsed_content = read_file(args.input_file)
+
+    if args.interactive:
+        parsed_content = interactive_mode(parsed_content)
+    parse_file(parsed_content)
+    for query in queries:
+        if query in global_dict:
+            result = False
+            for node in global_dict[query]:
+                node_result = node.solve()
+                result = result or node_result
+                if (result):
+                    break
+            print(f"{query}: {result}")
+        else:
+            print(f"{query}: False")
+
+    # print(f"final global_dict:\n{global_dict}")
+
+
+if __name__ == "__main__":
+    main()
+    pass
 
     # Debug :
     # print("-----------------------------------")
@@ -72,7 +100,7 @@ def main():
     #     print(variable)
     # print("-----------------------------------")
 
-    #for variable in global_dict:
+    # for variable in global_dict:
     #    if variable in "!+^|":
     #        continue
     #    print(variable)
@@ -84,20 +112,3 @@ def main():
     # print(global_dict)
 
     # print("----------   SOLVING   ----------")
-
-    for query in queries:
-        if query in global_dict:
-            result = False
-            for node in global_dict[query]:
-                node_result = node.solve()
-                result = result or node_result  # Mettre à jour si un des Nodes donne True
-                if (result): break
-            print(f"{query}: {result}")
-        else:
-            print(f"{query}: False")
-
-    #print(f"final global_dict:\n{global_dict}")
-
-if __name__ == "__main__":
-    main()
-    pass

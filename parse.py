@@ -112,7 +112,6 @@ def is_valid_rpn(rpn_expression: str) -> bool:
         i += 1
     return stack == 1
 
-
 def to_rpn(expression: str) -> str:
     """
     Converts a regular mathematical/logical expression to Reverse Polish Notation (RPN).
@@ -161,9 +160,6 @@ def to_rpn(expression: str) -> str:
 
     return ''.join(output)
 
-
-
-
 def fill_known_undefined_variables(parsed_content):
     """
     Fills the global_dict dictionary with undefined variables found in rules, setting their value to -1 (undefined).
@@ -174,7 +170,6 @@ def fill_known_undefined_variables(parsed_content):
             for char in content:
                 if char.isupper() and char not in global_dict:
                     global_dict[char] = [Rule.Node(char, False)]
-
 
 def divide_rule(left_side: str, right_side: str, relation: str) -> dict:
     """
@@ -281,7 +276,6 @@ def validate_file(parsed_content):
                 raise ValueError(f"Error: Invalid characters in facts ({content}).")
             for fact in content:
                 if fact not in global_dict or not any(node.value for node in global_dict[fact]):
-                    # Ajouter le fait seulement s'il n'est pas déjà présent ou s'il n'est pas résolu
                     global_dict[fact] = [Rule.Node(fact, True)]
 
 
@@ -301,19 +295,24 @@ def validate_file(parsed_content):
     elif not has_query:
         raise ValueError("Error: Missing queries.")
 
-
-
-
-def parse_file(file_path: str) -> bool:
+def read_file(file_path: str) -> list:
     """
-    Parses the content of a file and validates it.
-    :param file_path: Path to the file to be parsed.
-    :return: True if the file content is valid, False otherwise.
+    Reads the content of a file and returns it as a list of tuples containing the type and content of each line.
+    :param file_path: Path to the file to be read.
+    :return: A list of tuples containing the type and content of each line.
     """
     parsed_content = []
     with open(file_path, "r") as file:
         for line in file:
             parsed_content.append(parse_line(line))
+    return parsed_content
+
+def parse_file(parsed_content):
+    """
+    Parses the content of a file and validates it.
+    :param file_path: Path to the file to be parsed.
+    :return: True if the file content is valid, False otherwise.
+    """
     try:
         validate_file(parsed_content)
     except ValueError as error:
