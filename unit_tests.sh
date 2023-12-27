@@ -47,6 +47,19 @@ error_tests() {
     done
 }
 
+optional_tests() {
+    for test_file in $TEST_OPTIONNAL_FOLDER/*.txt; do
+        echo "Testing $test_case..."
+        python3 $PYTHON_SCRIPT "$test_file"
+        if [ $? -eq 0 ]; then
+            echo -e "${GREEN}Test Passed${NO_COLOR}"
+        else
+            echo -e "${RED}Test Failed${NO_COLOR}"
+        fi
+        echo ""
+    done
+}
+
 mandatory_tests() {
     for test_file in $TEST_MANDATORY_FOLDER/*.txt; do
         echo "----------------------------------------"
