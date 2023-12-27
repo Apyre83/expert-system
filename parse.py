@@ -113,29 +113,33 @@ def is_valid_rpn(rpn_expression: str) -> bool:
     return stack == 1
 
 
-
 def to_rpn(expression: str) -> str:
     """
     Converts a regular mathematical/logical expression to Reverse Polish Notation (RPN).
     :param expression: The expression to convert.
     :return: The converted RPN expression as a string.
     """
-    precedence = {'!': 4, '^': 3, '|': 2, '+': 1, '(': 0, ')': 0}
+    precedence = {'!': 4, '+': 3, '|': 2, '^': 1, '(': 0, ')': 0}
     output = []
     stack = []
-    i = 0
 
+    i = 0
     while i < len(expression):
         char = expression[i]
 
         if char.isalpha() and char.isupper():
             output.append(char)
         elif char == '!':
+            # Gérer le '!' comme opérateur unaire
             if i + 1 < len(expression) and expression[i + 1].isalpha() and expression[i + 1].isupper():
                 output.append(char + expression[i + 1])
-                i += 1
+                i += 1  # Passer le caractère suivant (la variable après '!')
             else:
                 return "Error: operator mismatch"
+        elif char in ['+', '|', '^']:
+            while stack and precedence[stack[-1]] >= precedence[char]:
+                output.append(stack.pop())
+            stack.append(char)
         elif char == '(':
             stack.append(char)
         elif char == ')':
@@ -145,20 +149,19 @@ def to_rpn(expression: str) -> str:
                 stack.pop()
             else:
                 return "Error: parenthesis mismatch"
-            if i + 1 < len(expression) and expression[i + 1] not in ['^', '|', '+', ')', '']:
-                return "Error: invalid character after parenthesis"
         else:
-            while stack and precedence[char] <= precedence[stack[-1]]:
-                output.append(stack.pop())
-            stack.append(char)
+            return "Error: invalid character"
 
         i += 1
 
     while stack:
+        if stack[-1] == '(':
+            return "Error: parenthesis mismatch"
         output.append(stack.pop())
 
-    #print(''.join(output))
     return ''.join(output)
+
+
 
 
 def fill_known_undefined_variables(parsed_content):

@@ -1,0 +1,5 @@
+
+A + B => !C
+
+=AB
+?C # C must be False
