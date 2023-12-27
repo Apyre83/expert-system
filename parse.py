@@ -12,6 +12,14 @@ queries = set()
 rules = []
 
 def pre_process_rpn(rpn_expression):
+    """
+    Preprocesses a Reverse Polish Notation (RPN) expression by handling negation operators.
+    This function iterates over the RPN expression and adjusts it to correctly process negations.
+    It ensures that the '!' operator is immediately followed by its operand.
+    Args:    rpn_expression (str): The RPN expression to be preprocessed.
+    Returns: str: The preprocessed RPN expression with adjusted negations.
+    Raises:  ValueError: If a negation operator ('!') is incorrectly placed at the end of the expression.
+    """
     tokens = list(rpn_expression)
     processed_tokens = []
     skip_next = False
@@ -27,21 +35,30 @@ def pre_process_rpn(rpn_expression):
                 processed_tokens.append(token)
                 skip_next = True
             else:
-                raise ValueError("Expression RPN invalide: '!' à la fin de l'expression")
+                raise ValueError(
+                    "Expression RPN invalide: '!' à la fin de l'expression")
         else:
             processed_tokens.append(token)
 
     return ''.join(processed_tokens)
 
 def construct_tree(rpn_expression):
+    """
+    Constructs a logical tree from a given RPN expression.
+    This function uses the preprocessed RPN expression to build a tree structure where each node represents
+    a logical operator or a variable. The tree is constructed by creating nodes and stacking them according
+    to the RPN rules, ensuring correct logical evaluation order.
+    Args:    rpn_expression (str): The RPN expression used to construct the logical tree.
+    Returns: Rule.Node or None: The root node of the constructed logical tree, or None if the tree cannot be constructed.
+    Note:    The function relies on a global dictionary (global_dict) to store and access nodes associated with variables.
+    """
     pre_rpn = pre_process_rpn(rpn_expression)
     tokens = list(pre_rpn)
     stack = []
 
     for token in tokens:
         if token in global_dict and token not in "+|^":
-            # Si le token est déjà dans global_dict et n'est pas un opérateur, ajoutez-le au stack
-            stack.append(Rule.Node(token, False))  # False => global_dict[token].solve()
+            stack.append(Rule.Node(token, False))
             continue
 
         if token in "+|^":
@@ -52,12 +69,11 @@ def construct_tree(rpn_expression):
             node = Rule.Node(token)
             node.right = stack.pop() if stack else None
         else:
-            node = Rule.Node(token)  # Créer un nœud avec le nom du token
+            node = Rule.Node(token)
 
-        # Ajouter le nœud à la liste correspondante dans global_dict
         if node.name not in global_dict:
-            global_dict[node.name] = []  # Initialiser avec une liste vide si non existant
-        global_dict[node.name].append(node)  # Ajouter le Node à la liste
+            global_dict[node.name] = []
+        global_dict[node.name].append(node)
 
         stack.append(node)
 
@@ -200,23 +216,25 @@ def validate_rule(rule: str) -> bool:
     operators = re.findall(r'[<=>]+', rule)
 
     if len(operators) != 1 or operators[0] not in ['=>', '<=>']:
-        raise ValueError(f"Error: Rule must contain exactly one valid implication operator : => or <=> ({rule}).")
-    else :
+        raise ValueError(
+            f"Error: Rule must contain exactly one valid implication operator : => or <=> ({rule}).")
+    else:
         relation = operators[0]
 
     left_side, right_side = re.split(r'[<=>]+', rule, maxsplit=1)
 
     if not left_side.strip() or not right_side.strip():
-        raise ValueError(f"Error: Rule must have at least one operand on each side ({rule}).")
+        raise ValueError(
+            f"Error: Rule must have at least one operand on each side ({rule}).")
 
     left_side = to_rpn(left_side)
     right_side = to_rpn(right_side)
     if re.search(r'[|^]', right_side):
-        raise ValueError(f"Error: Right side of rule must not contain any operator ({rule}).")
+        raise ValueError(
+            f"Error: Right side of rule must not contain any operator ({rule}).")
 
     if not is_valid_rpn(left_side) or not is_valid_rpn(right_side):
         raise ValueError(f"Error: Rule is not valid ({rule}).")
-
 
     if '+' in right_side:
         divided_rules = divide_rule(left_side, right_side, relation)
@@ -269,29 +287,31 @@ def validate_file(parsed_content):
                 print(e)
                 exit(1)
 
-
         if line_type == "fact":
             has_fact = True
             if not re.match(r'^[A-Z]*$', content):
-                raise ValueError(f"Error: Invalid characters in facts ({content}).")
+                raise ValueError(
+                    f"Error: Invalid characters in facts ({content}).")
             for fact in content:
                 if fact not in global_dict or not any(node.value for node in global_dict[fact]):
                     global_dict[fact] = [Rule.Node(fact, True)]
 
-
         if line_type == "query":
             has_query = True
             if not re.match(r'^[A-Z]+$', content):
-                raise ValueError(f"Error: Invalid characters in query or query is empty ({content}).")
+                raise ValueError(
+                    f"Error: Invalid characters in query or query is empty ({content}).")
             for query in content:
                 if query in queries:
-                    raise ValueError(f"Error: Duplicate query detected ({query}).")
+                    raise ValueError(
+                        f"Error: Duplicate query detected ({query}).")
                 queries.add(query)
 
     if not has_rule:
         raise ValueError("Error: Missing rules.")
     elif not has_fact:
-        raise ValueError("Error: Missing facts. Even if there are no facts, there must be an empty fact section, beginning with \"=\".")
+        raise ValueError(
+            "Error: Missing facts. Even if there are no facts, there must be an empty fact section, beginning with \"=\".")
     elif not has_query:
         raise ValueError("Error: Missing queries.")
 
