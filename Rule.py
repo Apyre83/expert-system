@@ -1,5 +1,6 @@
 import parse
 from typing import List, Set
+
 class Node:
     """
     Represents a node in a logical tree, which can be either a variable or an operator.
@@ -33,33 +34,47 @@ class Node:
         self.type = "OPERATOR" if name in "+|^!" else "VARIABLE"
         self.isBeingSolved = False
 
-    def solve(self):
-        """
-        Resolves the logical value of the node. For variables, it resolves their value based on the logical tree.
-        For operators, it computes the logical operation based on the values of child nodes.
-        Returns: bool: The resolved logical value of the node.
-        Note:    The method uses recursion to resolve values and employs mechanisms to handle circular references.
-        """
+    def solve(self, explain=False):
+        explanations = []
+
         if self.type == "VARIABLE":
             if self.hasBeenSolved:
-                return self.value
+                if explain:
+                    explanations.append(f"Variable '{self.name}' déjà résolue : {self.value}")
+                return self.value, explanations
+
             if self.isBeingSolved:
-                return False
+                if explain:
+                    print(f"Nous n'avons pas de valeur a calculer pour '{self.name}'. Ainsi, {self.name}: False")
+                return False, explanations
 
             self.isBeingSolved = True
             result = False
             for node in parse.global_dict[self.name]:
-                node_result = node.solve()
+                node_result, node_explanations = node.solve(explain)
+                explanations.extend(node_explanations)
                 result = result or node_result
             self.value = result
             self.hasBeenSolved = True
             self.isBeingSolved = False
-            return self.value
+            return self.value, explanations
 
-
+        # Handling operators
         if self.name in ["+", "|", "^"]:
-            left_value = self.left.solve() if self.left is not None else False
-            right_value = self.right.solve() if self.right is not None else False
+            if explain:
+                operands = [self.left.name if self.left else "", self.right.name if self.right else ""]
+                op_explanation = f"Opérateur '{self.name}'. Nous cherchons à connaître la valeur de ses opérandes: {' et '.join(filter(None, operands))}."
+                explanations.append(op_explanation)
+
+            left_value, left_explanations = (False, [])
+            if self.left:
+                left_value, left_explanations = self.left.solve(explain)
+                explanations.extend(left_explanations)
+
+            right_value, right_explanations = (False, [])
+            if self.right:
+                right_value, right_explanations = self.right.solve(explain)
+                explanations.extend(right_explanations)
 
             if self.name == "+":
                 self.value = left_value and right_value
@@ -68,12 +83,25 @@ class Node:
             elif self.name == "^":
                 self.value = left_value != right_value
 
+            if explain:
+                result_explanation = f"Opérateur '{self.name}' : {' et '.join(filter(None, [str(left_value), str(right_value)]))} résulte en {self.value}"
+                explanations.append(result_explanation)
+
         elif self.name == "!":
-            right_value = self.right.solve() if self.right is not None else False
+            if explain:
+                op_explanation = f"Opérateur '!'. Nous cherchons à connaître la valeur de son opérande: {self.right.name}."
+                explanations.append(op_explanation)
+
+            right_value, right_explanations = self.right.solve(explain) if self.right else (False, [])
+            explanations.extend(right_explanations)
+
             self.value = not right_value
+            if explain:
+                result_explanation = f"Opérateur '!' : not {right_value} résulte en {self.value}"
+                explanations.append(result_explanation)
 
         self.hasBeenSolved = True
-        return self.value
+        return self.value, explanations
 
     def __str__(self):
         """
