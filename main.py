@@ -6,6 +6,8 @@ from parse import queries, global_dict
 from interactive import interactive_mode
 import argparse
 from graphviz import Digraph
+from Rule import Node
+from typing import Set
 
 
 
@@ -42,7 +44,25 @@ def extract_variable_fron_RPN(rpn_expression: str) -> Tuple[str, str]:
     return variable, rpn_expression
 
 
-def draw_binary_tree(node, query, graph, is_root=True, added_nodes=set()):
+def draw_binary_tree(node: Node, query: str, graph: Digraph, is_root: bool = True, added_nodes: Set[str] = set()) -> Digraph:
+    """
+    Draws a binary tree representing the structure of a set of logical rules.
+
+    This function takes as input a node of the tree, which represents a logical rule, and recursively draws
+    the binary tree starting from this node. The tree is drawn using the Graphviz library. Each node of the tree
+    is represented as a node in the graph, with edges connecting parent nodes to child nodes. The resulting
+    graph can be used to visualize the structure of the logical rules.
+
+    Args:
+        node (RuleNode): The node of the tree to start drawing from.
+        query (str): The logical query associated with the tree.
+        graph (Digraph): The Graphviz Digraph object used for drawing the graph.
+        is_root (bool): Indicates whether the current node is the root of the tree. Defaults to True.
+        added_nodes (set): A set of node names that have already been added to the graph to avoid duplicates.
+
+    Returns:
+        Digraph: The updated Digraph object with the binary tree graph.
+    """
     if graph is None:
         graph = Digraph()
 
@@ -133,9 +153,11 @@ def main():
         master_graph.render("master_graph", view=True)
 
 
+    if explain:
+        print("\n-----------------------------------\n")
     for query in queries:
         if explain:
-            print(f"Essai de résolution de '{query}':")
+            print(f"Trying to solve '{query}':")
         if query in global_dict:
 
             result = False
@@ -152,9 +174,11 @@ def main():
             print(f"{query}: {result}")
         else:
             if explain:
-                print(f"{query}: False (pas de règle trouvée)")
+                print(f"There is no rule for '{query}'. Therefore, {query}: False")
             else:
-                print(f"Il n'y a pas de règle pour '{query}'. Par conséquent, {query}: False")
+                print(f"{query}: False")
+        if explain:
+            print("\n-----------------------------------\n")
 
 
     # print(f"final global_dict:\n{global_dict}")

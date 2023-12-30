@@ -35,17 +35,34 @@ class Node:
         self.isBeingSolved = False
 
     def solve(self, explain=False):
+        """
+        Recursively solves the logical value of the node and its descendants in a logical tree.
+
+        This method is responsible for evaluating the logical value of the node based on its type (either 'OPERATOR' or 'VARIABLE')
+        and its children, if any. It uses a recursive approach to traverse the tree structure and compute the logical value.
+        If the node is a 'VARIABLE', it checks if its value has already been resolved and returns it. If not, it recursively
+        evaluates its value based on the rules associated with the variable.
+        If the node is an 'OPERATOR', it evaluates the logical operation based on its operator type and the values of its
+        left and right children.
+
+        Args:
+            explain (bool, optional): Indicates whether to provide explanations during the solving process. Defaults to False.
+
+        Returns:
+            Tuple[bool, List[str]]: A tuple containing the resolved logical value of the node and a list of explanations, if
+            'explain' is True.
+        """
         explanations = []
 
         if self.type == "VARIABLE":
             if self.hasBeenSolved:
                 if explain:
-                    explanations.append(f"Variable '{self.name}' déjà résolue : {self.value}")
+                    explanations.append(f"Variable '{self.name}' is already solved: {self.value}")
                 return self.value, explanations
 
             if self.isBeingSolved:
                 if explain:
-                    print(f"Nous n'avons pas de valeur a calculer pour '{self.name}'. Ainsi, {self.name}: False")
+                    print(f"We have a circular reference for '{self.name}'. Thus, {self.name}: False")
                 return False, explanations
 
             self.isBeingSolved = True
@@ -63,7 +80,7 @@ class Node:
         if self.name in ["+", "|", "^"]:
             if explain:
                 operands = [self.left.name if self.left else "", self.right.name if self.right else ""]
-                op_explanation = f"Opérateur '{self.name}'. Nous cherchons à connaître la valeur de ses opérandes: {' et '.join(filter(None, operands))}."
+                op_explanation = f"Operator '{self.name}'. We are looking to know the value of its operands: {' and '.join(filter(None, operands))}."
                 explanations.append(op_explanation)
 
             left_value, left_explanations = (False, [])
@@ -84,12 +101,12 @@ class Node:
                 self.value = left_value != right_value
 
             if explain:
-                result_explanation = f"Opérateur '{self.name}' : {' et '.join(filter(None, [str(left_value), str(right_value)]))} résulte en {self.value}"
+                result_explanation = f"Operator '{self.name}' : {left_value} {self.name} {right_value} results in {self.value}"
                 explanations.append(result_explanation)
 
         elif self.name == "!":
             if explain:
-                op_explanation = f"Opérateur '!'. Nous cherchons à connaître la valeur de son opérande: {self.right.name}."
+                op_explanation = f"Operator '!'. We are looking to know the value of its operand: {self.right.name}."
                 explanations.append(op_explanation)
 
             right_value, right_explanations = self.right.solve(explain) if self.right else (False, [])
@@ -97,7 +114,7 @@ class Node:
 
             self.value = not right_value
             if explain:
-                result_explanation = f"Opérateur '!' : not {right_value} résulte en {self.value}"
+                result_explanation = f"Operator '!' : not {right_value} results in {self.value}"
                 explanations.append(result_explanation)
 
         self.hasBeenSolved = True
