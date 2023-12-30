@@ -68,7 +68,7 @@ def draw_binary_tree(node: Node, query: str, graph: Digraph, is_root: bool = Tru
 
     if is_root and node is not None:
         query_node_id = f"query_{query}"
-        graph.node(query_node_id, label=f"Requête: {query}", shape="rectangle")
+        graph.node(query_node_id, label=f"Query: {query}", shape="rectangle")
         added_nodes.add(query_node_id)
 
     if node is not None:
